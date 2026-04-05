@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApexMaterials — Specification-Controlled Supply System</title>
+  <meta name="description" content="Specification-controlled supply for qualification-critical industrial programs." />
+  <style>
+    :root {
+      --bg:#05080d; --bg2:#0a0f15; --bg3:#0f1721;
+      --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.16);
+      --text:#f4f7fb; --muted:rgba(244,247,251,.74); --muted2:rgba(244,247,251,.52);
+      --cyan:#8fd8ff; --success:#9df0c5; --shadow:0 18px 60px rgba(0,0,0,.32);
+      --radius:28px; --max:1240px; --t:220ms cubic-bezier(.2,.8,.2,1); --reveal-y:28px;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth} section[id], .rfq-switch-section[id]{scroll-margin-top:110px}
+    body{
+      margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 84% 0%, rgba(143,216,255,.10), transparent 20%),
+        radial-gradient(circle at 12% 0%, rgba(143,216,255,.04), transparent 18%),
+        linear-gradient(180deg,#05080d 0%,#060a10 38%,#05080d 100%);
+      line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden
+    }
+    body::before{
+      content:"";position:fixed;inset:0;pointer-events:none;
+      background:
+        radial-gradient(circle at 20% 12%, rgba(143,216,255,.05), transparent 24%),
+        radial-gradient(circle at 82% 28%, rgba(255,255,255,.025), transparent 22%);
+      opacity:.8;z-index:-1
+    }
+    a{text-decoration:none;color:inherit} button,input,select,textarea{font:inherit}
+    .container{width:min(var(--max),calc(100% - 32px));margin:0 auto}
+    .section{padding:96px 0;position:relative}
+    .section::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.01) 50%,rgba(255,255,255,0));opacity:.5;pointer-events:none}
+    .section-dark{background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .nav{position:sticky;top:0;z-index:100;background:rgba(5,8,13,.78);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);transition:background var(--t),border-color var(--t),box-shadow var(--t)}
+    .nav.scrolled{background:rgba(5,8,13,.92);box-shadow:0 10px 30px rgba(0,0,0,.22);border-bottom-color:rgba(255,255,255,.14)}
+    .nav-inner{width:min(var(--max),calc(100% - 32px));margin:0 auto;padding:16px 0;display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center}
+    .brand-title{font-size:18px;font-weight:700;letter-spacing:.02em}.brand-sub{margin-top:2px;font-size:11px;text-transform:uppercase;letter-spacing:.22em;color:var(--muted2)}
+    .nav-links{display:flex;justify-content:center;gap:24px;font-size:14px;color:var(--muted);flex-wrap:wrap}.nav-links a,.footer-links a{transition:color var(--t)}.nav-links a:hover,.footer-links a:hover{color:var(--text)}
+    .nav-actions{display:flex;gap:12px;align-items:center}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;border-radius:999px;border:1px solid transparent;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:transform var(--t),border-color var(--t),background var(--t),color var(--t),box-shadow var(--t)}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:#fff;color:#09111a;box-shadow:0 10px 26px rgba(255,255,255,.10)} .btn-primary:hover{box-shadow:0 14px 32px rgba(255,255,255,.14)}
+    .btn-secondary{background:transparent;color:var(--text);border-color:rgba(255,255,255,.14)} .btn-secondary:hover{background:rgba(255,255,255,.04)}
+    .btn-ghost{background:rgba(255,255,255,.04);color:var(--text);border-color:rgba(255,255,255,.10)} .btn-ghost:hover{background:rgba(255,255,255,.07)}
+    .eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12px;text-transform:uppercase;letter-spacing:.22em;color:var(--cyan)}
+    .eyebrow::before{content:"";width:28px;height:1px;background:rgba(143,216,255,.6)}
+    h1,h2,h3{margin:0;line-height:1.03;letter-spacing:-.035em} h1{font-size:clamp(42px,7vw,72px);font-weight:600;max-width:12ch} h2{font-size:clamp(32px,5vw,48px);font-weight:600;max-width:18ch} h3{font-size:24px;font-weight:600}
+    .hero{padding:88px 0 108px;border-bottom:1px solid var(--line);overflow:clip}.hero-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:42px;align-items:start}
+    .hero-chip{display:inline-flex;padding:10px 15px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:12px;text-transform:uppercase;letter-spacing:.22em;color:var(--muted);backdrop-filter:blur(8px)}
+    .lead{margin-top:22px;font-size:20px;line-height:1.8;color:var(--muted);max-width:760px}.sublead{margin-top:16px;font-size:15px;line-height:1.78;color:var(--muted2);max-width:760px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+    .signal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:34px}.signal{padding:16px 18px;min-height:64px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.038),rgba(255,255,255,.022));text-align:center;font-size:13px;line-height:1.45;color:var(--muted);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:transform var(--t),border-color var(--t),background var(--t),color var(--t),box-shadow var(--t)} .signal:hover{transform:translateY(-2px);border-color:var(--line2);color:var(--text);background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03));box-shadow:0 14px 28px rgba(0,0,0,.14)}
+    .card,.hero-card,.proof-card,.rfq-info-card,.rfq-form-card,.material-card,.region-card,.compliance-card,.lock-card{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(10px);padding:28px}
+    .hero-card{position:relative;overflow:hidden}.hero-card::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(143,216,255,.08),transparent 40%,transparent 60%,rgba(255,255,255,.03));pointer-events:none}
+    .stat-grid{position:relative;display:grid;grid-template-columns:repeat(2,1fr);gap:14px;z-index:1}.stat{padding:20px;border-radius:22px;border:1px solid var(--line);background:var(--bg3);transition:transform var(--t),border-color var(--t),background var(--t),box-shadow var(--t)} .stat:hover{transform:translateY(-2px);border-color:var(--line2);background:rgba(255,255,255,.05);box-shadow:0 14px 26px rgba(0,0,0,.14)} .stat strong{display:block;font-size:28px;line-height:1.08} .stat span{display:block;margin-top:8px;font-size:14px;line-height:1.55;color:var(--muted2)}
+    .hero-note{position:relative;z-index:1;margin-top:14px;padding:18px 20px;border-radius:22px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);font-size:15px;line-height:1.72}
+    .pdf-cta{display:block;margin-top:26px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border-radius:24px;padding:20px;position:relative;overflow:hidden;transition:transform var(--t),border-color var(--t),box-shadow var(--t),background var(--t)}
+    .pdf-cta:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.22);box-shadow:0 18px 36px rgba(0,0,0,.18)} .pdf-cta::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(143,216,255,.08),transparent 34%,transparent 68%,rgba(255,255,255,.04));pointer-events:none}
+    .pdf-cta-content{display:flex;justify-content:space-between;align-items:center;gap:18px;position:relative;z-index:1}.pdf-cta-left{display:flex;gap:16px;align-items:center}
+    .pdf-icon{width:48px;height:48px;border-radius:14px;background:#fff;color:#09111a;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;letter-spacing:1px;flex-shrink:0}.pdf-title{font-size:15px;font-weight:600}.pdf-sub{font-size:12px;color:var(--muted2);margin-top:4px;line-height:1.55}.pdf-meta{text-align:right;font-size:13px;color:var(--muted)}.pdf-size{font-size:11px;color:var(--muted2);margin-top:2px}.pdf-note{position:relative;z-index:1;margin-top:12px;font-size:12px;color:var(--muted2);line-height:1.55}
+    .section-head{max-width:920px}.section-lead{margin-top:18px;font-size:19px;line-height:1.82;color:var(--muted);max-width:840px}
+    .grid-2,.grid-3,.grid-4{display:grid;gap:24px}.grid-2{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:repeat(3,1fr)}.grid-4{grid-template-columns:repeat(4,1fr)}
+    .compare-side{padding:26px;border-radius:24px;border:1px solid var(--line);background:rgba(255,255,255,.03);transition:transform var(--t),border-color var(--t),background var(--t),box-shadow var(--t)} .compare-side:hover{transform:translateY(-2px);border-color:var(--line2);box-shadow:0 14px 26px rgba(0,0,0,.12)} .compare-side.bad{background:rgba(255,255,255,.02)} .compare-side.good{background:linear-gradient(180deg,rgba(143,216,255,.08),rgba(255,255,255,.03))} .compare-side h3{margin-bottom:14px}.compare-list{margin:0;padding-left:18px;color:var(--muted);font-size:15px;line-height:1.9}
+    .use-grid,.scsp-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:34px}.scsp-grid{margin-top:36px}.use-card,.scsp-step{padding:22px;border:1px solid var(--line);border-radius:24px;background:rgba(255,255,255,.03);transition:transform var(--t),border-color var(--t),background var(--t),box-shadow var(--t)} .use-card:hover,.scsp-step:hover{transform:translateY(-2px);border-color:var(--line2);background:rgba(255,255,255,.045);box-shadow:0 14px 26px rgba(0,0,0,.12)} .use-card{color:var(--muted);font-size:14px;line-height:1.72}.step-no{font-size:11px;text-transform:uppercase;letter-spacing:.22em;color:var(--muted2)}.step-title{margin-top:12px;font-size:18px;font-weight:600}.step-copy{margin-top:10px;font-size:13px;line-height:1.72;color:var(--muted2)}
+    .proof-layout{display:grid;grid-template-columns:.92fr 1.08fr;gap:28px;align-items:start;margin-top:34px}.proof-visual{min-height:380px;display:grid;place-items:center}
+    .triangle-shell{width:100%;max-width:360px;aspect-ratio:1;border-radius:34px;border:1px solid var(--line);display:grid;place-items:center;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));position:relative;overflow:hidden;transition:transform 500ms cubic-bezier(.2,.8,.2,1),box-shadow 500ms cubic-bezier(.2,.8,.2,1)} .triangle-shell:hover{transform:translateY(-4px) scale(1.01);box-shadow:0 22px 60px rgba(0,0,0,.26)} .triangle-shell::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at center,rgba(143,216,255,.08),transparent 52%)}
+    .triangle{width:0;height:0;border-left:84px solid transparent;border-right:84px solid transparent;border-bottom:148px solid rgba(143,216,255,.88);position:relative;filter:drop-shadow(0 0 24px rgba(143,216,255,.16));animation:pulse 4s ease-in-out infinite}.triangle:after{content:"";position:absolute;left:-63px;top:18px;width:0;height:0;border-left:63px solid transparent;border-right:63px solid transparent;border-bottom:110px solid rgba(5,8,13,.9)}
+    @keyframes pulse{0%,100%{transform:translateY(0);filter:drop-shadow(0 0 18px rgba(143,216,255,.14))}50%{transform:translateY(-4px);filter:drop-shadow(0 0 26px rgba(143,216,255,.22))}}
+    .kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:18px}.kpi{padding:18px;border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.03);transition:transform var(--t),border-color var(--t),background var(--t),box-shadow var(--t)} .kpi:hover{transform:translateY(-2px);border-color:var(--line2);background:rgba(255,255,255,.045);box-shadow:0 14px 26px rgba(0,0,0,.12)} .kpi .label{font-size:11px;text-transform:uppercase;letter-spacing:.2em;color:var(--muted2)} .kpi .value{margin-top:8px;font-size:22px;line-height:1.2}
+    .mini-table{margin-top:18px}.mini-row{display:grid;grid-template-columns:1fr auto;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);color:var(--muted);transition:color var(--t),transform var(--t)} .mini-row:hover{color:var(--text);transform:translateX(2px)} .mini-row strong{color:var(--text);font-weight:600}.proof-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+    .lock-card{margin-top:34px;text-align:center}.lock-line{font-size:28px;line-height:1.25;letter-spacing:-.03em;max-width:900px;margin:0 auto}.lock-sub{margin-top:14px;font-size:16px;color:var(--muted);max-width:760px;margin-inline:auto}
+    .rfq-switch-section{padding:96px 0;background:radial-gradient(circle at top right,rgba(124,208,255,.08),transparent 24%),linear-gradient(180deg,#09111a 0%,#0b131d 100%);border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:clip}
+    .rfq-transition{max-width:920px;margin-bottom:34px}.rfq-transition-copy{margin:18px 0 0;max-width:760px;font-size:18px;line-height:1.75;color:rgba(243,246,250,.74)} .rfq-toggle-wrap{margin-top:26px}.rfq-toggle-label{margin-bottom:12px;font-size:14px;color:rgba(243,246,250,.6)}
+    .rfq-toggle{position:relative;display:inline-grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);isolation:isolate;min-width:340px;max-width:100%;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)} .rfq-toggle-indicator{position:absolute;top:8px;left:8px;height:calc(100% - 16px);width:calc(50% - 4px);border-radius:999px;background:#fff;box-shadow:0 10px 24px rgba(255,255,255,.08);transition:transform 320ms cubic-bezier(.2,.8,.2,1),width 320ms cubic-bezier(.2,.8,.2,1);z-index:0}
+    .rfq-toggle-btn{position:relative;z-index:1;border:1px solid transparent;background:transparent;color:rgba(243,246,250,.78);padding:12px 18px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;transition:color var(--t),transform var(--t)} .rfq-toggle-btn:hover{color:var(--text)} .rfq-toggle-btn.active{color:#09111a}
+    .rfq-panel-grid{margin-top:28px;overflow:visible}.rfq-stage{position:relative;min-height:auto;padding-bottom:0}.rfq-mode-panel{position:static;display:none;grid-template-columns:.92fr 1.08fr;gap:28px;align-items:start;opacity:1;transform:none;pointer-events:auto;transition:none;padding-bottom:20px} .rfq-mode-panel.active{display:grid}
+    .rfq-info-card h3{margin:0;font-size:28px;line-height:1.12;letter-spacing:-.03em}.rfq-lead{margin:16px 0 0;font-size:16px;line-height:1.75;color:rgba(243,246,250,.74)}.rfq-warning{margin-top:20px;padding:14px 16px;border-radius:18px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);color:var(--cyan);font-size:14px;line-height:1.6}.rfq-steps{display:grid;gap:14px;margin-top:22px}.rfq-step{padding:18px;border-radius:20px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);transition:transform var(--t),border-color var(--t),background var(--t),box-shadow var(--t)} .rfq-step:hover{transform:translateY(-2px);border-color:var(--line2);background:rgba(255,255,255,.045);box-shadow:0 14px 26px rgba(0,0,0,.12)} .rfq-step strong{display:block;font-size:15px;margin-bottom:8px}.rfq-step span{display:block;font-size:14px;line-height:1.7;color:rgba(243,246,250,.66)}
+    .rfq-bullets{margin:18px 0 0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.8}
+    .rfq-form-card{background:#0c141d}.rfq-form{display:grid;gap:18px}.form-section-title{margin-top:4px;font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:rgba(243,246,250,.52)}.form-grid{display:grid;gap:16px}.form-grid.one{grid-template-columns:1fr}.form-grid.two{grid-template-columns:repeat(2,1fr)}.form-grid.three{grid-template-columns:repeat(3,1fr)} .rfq-form label{display:block}.rfq-form label span{display:block;margin-bottom:8px;font-size:13px;font-weight:600;color:rgba(243,246,250,.88)}
+    .rfq-form input,.rfq-form select,.rfq-form textarea{width:100%;border-radius:18px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);color:#fff;padding:14px 16px;outline:none;transition:border-color var(--t),box-shadow var(--t),background var(--t),transform var(--t)} .rfq-form select{-webkit-appearance:none;appearance:none;padding-right:52px;background-image:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01)),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9' fill='none'%3E%3Cpath d='M1 1.5L7 7.5L13 1.5' stroke='rgba(244,247,251,0.78)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat,no-repeat;background-position:0 0,right 18px center;background-size:auto,14px 9px;cursor:pointer} .rfq-form select:hover{background-image:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015)),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9' fill='none'%3E%3Cpath d='M1 1.5L7 7.5L13 1.5' stroke='rgba(244,247,251,0.92)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")} .rfq-form select option{background:#0c141d;color:#f4f7fb} .rfq-form select:required:invalid{color:rgba(244,247,251,.46)} .rfq-form select option[value=""]{color:rgba(244,247,251,.46)} .rfq-form select:focus{color:#fff} .rfq-form input:hover,.rfq-form select:hover,.rfq-form textarea:hover{background-color:rgba(255,255,255,.055)} .rfq-form input:focus,.rfq-form select:focus,.rfq-form textarea:focus{border-color:rgba(143,216,255,.6);box-shadow:0 0 0 4px rgba(143,216,255,.08);background-color:rgba(255,255,255,.06);transform:translateY(-1px)} .rfq-form textarea{min-height:150px;resize:vertical}.rfq-form input::placeholder,.rfq-form textarea::placeholder{color:rgba(255,255,255,.28)}
+
+    .rfq-form, .rfq-form select{color-scheme:dark;}
+    .form-note,.form-commit,.hover-note,.path-note{margin:0;font-size:13px;line-height:1.7;color:rgba(243,246,250,.58)} .form-commit{padding:14px 16px;border-radius:18px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:var(--muted)} .hover-note{margin-top:8px} .path-note{margin-top:10px}
+    .form-actions{display:grid;gap:14px;margin-top:10px;padding-bottom:4px;align-content:start}.form-footer{display:grid;grid-template-columns:minmax(360px,1.06fr) minmax(280px,.94fr);gap:24px;align-items:stretch;margin-top:10px}.form-footer .form-actions{margin-top:0;padding-bottom:0}.after-submission-card{height:100%;padding:20px;border-radius:22px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.038),rgba(255,255,255,.02));display:grid;grid-template-rows:auto auto auto 1fr auto;gap:0}.after-submission-card h3{margin-top:12px}.after-submission-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:10px;padding:12px 14px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025)}.after-submission-meta strong{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,247,251,.84)}.after-submission-meta span{font-size:12px;color:rgba(244,247,251,.58)}.system-progress{margin-top:14px;display:flex;align-items:center;gap:10px}.system-progress-bar{position:relative;flex:1;height:8px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;border:1px solid rgba(255,255,255,.05)}.system-progress-fill{position:absolute;inset:0 auto 0 0;width:34%;border-radius:999px;background:linear-gradient(90deg,rgba(143,216,255,.82),rgba(157,240,197,.82));transition:width 280ms cubic-bezier(.2,.8,.2,1)}.system-progress-label{font-size:12px;color:rgba(244,247,251,.62);white-space:nowrap}.system-flow{display:grid;gap:10px;margin-top:14px}.system-step{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:12px 0;border-top:1px solid rgba(255,255,255,.06);transition:opacity 180ms ease,transform 180ms ease}.system-step:first-child{border-top:none;padding-top:0}.system-step-no{width:28px;height:28px;border-radius:999px;border:1px solid rgba(255,255,255,.10);display:grid;place-items:center;font-size:11px;letter-spacing:.16em;color:rgba(244,247,251,.62);background:rgba(255,255,255,.03);transition:border-color 180ms ease,background 180ms ease,color 180ms ease,box-shadow 180ms ease}.system-step strong{display:block;font-size:14px;line-height:1.45}.system-step span{display:block;margin-top:4px;font-size:13px;line-height:1.65;color:rgba(244,247,251,.60)}.system-step.is-active .system-step-no{border-color:rgba(143,216,255,.45);background:rgba(143,216,255,.12);color:#fff;box-shadow:0 0 0 4px rgba(143,216,255,.06)}.system-step.is-active strong{color:#fff}.system-step.is-complete .system-step-no{border-color:rgba(157,240,197,.32);background:rgba(157,240,197,.14);color:#dfffee}.system-step.is-complete strong{color:#fff}.system-step.is-complete span,.system-step.is-active span{color:rgba(244,247,251,.74)}.system-step.is-muted{opacity:.58}.system-feedback{margin-top:14px;padding:14px 16px;border-radius:16px;border:1px solid rgba(143,216,255,.14);background:rgba(143,216,255,.06);font-size:13px;line-height:1.7;color:rgba(244,247,251,.78);transition:border-color 180ms ease,background 180ms ease,color 180ms ease}.system-feedback strong{color:#fff}.system-state-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(244,247,251,.72)}.system-state-dot{width:7px;height:7px;border-radius:999px;background:rgba(244,247,251,.44);transition:background 180ms ease,box-shadow 180ms ease}.after-submission-card[data-state='idle'] .system-step:nth-child(1){opacity:1}.after-submission-card[data-state='submitting'] .system-state-dot{background:rgba(143,216,255,.86);box-shadow:0 0 0 6px rgba(143,216,255,.08)}.after-submission-card[data-state='submitted'] .system-state-dot{background:rgba(157,240,197,.9);box-shadow:0 0 0 6px rgba(157,240,197,.08)}.after-submission-card[data-state='submitted'] .system-feedback{border-color:rgba(157,240,197,.24);background:rgba(157,240,197,.08);color:#dfffee}.rfq-form.is-submitting .rfq-submit-btn{opacity:.72;pointer-events:none}.rfq-submit-btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;border:1px solid transparent;border-radius:999px;background:#fff;color:#09111a;font-size:14px;font-weight:700;padding:0 22px;cursor:pointer;transition:transform var(--t),box-shadow var(--t);box-shadow:0 10px 22px rgba(255,255,255,.08)} .rfq-submit-btn:hover{transform:translateY(-1px);box-shadow:0 14px 28px rgba(255,255,255,.12)} .form-success{display:none;padding:16px 18px;border-radius:18px;border:1px solid rgba(157,240,197,.24);background:rgba(157,240,197,.08);color:#dfffee;font-size:14px;line-height:1.65}.form-success.visible{display:block}
+    .materials-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:42px}.material-card{background:rgba(255,255,255,.025)}.material-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.badge{border:1px solid var(--line);border-radius:999px;padding:10px 14px;font-size:11px;text-transform:uppercase;letter-spacing:.2em;color:var(--muted2)}.purity{margin-top:10px;font-size:12px;text-transform:uppercase;letter-spacing:.2em;color:var(--cyan)}.material-lead{margin-top:18px;color:var(--muted);font-size:16px;line-height:1.72}.material-apps{margin-top:14px;color:var(--muted2);font-size:14px;line-height:1.65}.material-decision-meta{margin-top:12px;color:var(--muted2);font-size:13px;line-height:1.7}.rfq-process{margin-top:22px}.documentation-list{margin:14px 0 0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.8}
+    .dual-toggle{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.toggle-btn{border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);border-radius:999px;padding:10px 14px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:background var(--t),color var(--t),border-color var(--t),transform var(--t)} .toggle-btn:hover{transform:translateY(-1px)} .toggle-btn.active{background:#fff;color:#09111a;border-color:#fff}
+    .panel-stage{position:relative;min-height:172px;margin-top:18px}.dual-panel{position:absolute;inset:0;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity 260ms ease,transform 260ms ease}.dual-panel.active{opacity:1;transform:translateY(0);pointer-events:auto}.subcard{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);border-radius:22px;padding:20px;height:100%}.subcard .label{font-size:11px;text-transform:uppercase;letter-spacing:.24em;color:var(--muted2)}.subcard ul{margin:14px 0 0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.75}
+    table{width:100%;margin-top:24px;border-collapse:collapse;border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden} td{padding:14px 16px;font-size:14px} tr:not(:last-child){border-bottom:1px solid rgba(255,255,255,.08)} td:first-child{width:44%;background:rgba(255,255,255,.04);color:var(--muted2)} td:last-child{color:var(--text)}
+    .regions-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:36px}
+    .region-card h3,.compliance-card h3,.ops-card h3{font-size:20px}
+    .list{margin:16px 0 0;padding-left:18px;color:var(--muted);font-size:15px;line-height:1.82}
+    .ops-card{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border-radius:24px;box-shadow:var(--shadow);padding:24px}
+    .ops-card p{margin:10px 0 0;color:var(--muted);font-size:14px;line-height:1.7}
+    .legal-line{margin-top:16px;font-size:13px;color:rgba(255,255,255,.5)}
+    .footer-meta{margin-top:10px;font-size:13px;color:rgba(255,255,255,.5)}
+    .reveal{opacity:0;transform:translate3d(0,var(--reveal-y),0);transition:opacity 700ms cubic-bezier(.2,.8,.2,1),transform 700ms cubic-bezier(.2,.8,.2,1)} .reveal.reveal-visible{opacity:1;transform:translate3d(0,0,0)} .stagger-1{transition-delay:40ms}.stagger-2{transition-delay:90ms}.stagger-3{transition-delay:140ms}.stagger-4{transition-delay:190ms}.stagger-5{transition-delay:240ms}
+    footer{border-top:1px solid var(--line);background:#05080d}.footer-inner{width:min(var(--max),calc(100% - 32px));margin:0 auto;padding:42px 0;display:flex;justify-content:space-between;gap:24px;align-items:flex-end}.footer-copy{max-width:620px;color:var(--muted);font-size:14px;line-height:1.8;margin-top:12px}.footer-links{display:grid;gap:10px;font-size:14px;color:var(--muted)}
+    @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.reveal{opacity:1!important;transform:none!important}}
+    @media (max-width:1160px){.hero-grid,.proof-layout,.rfq-mode-panel,.rfq-mode-panel.active{position:static;grid-template-columns:1fr}.rfq-stage,.panel-stage{min-height:auto}.rfq-mode-panel{display:none;opacity:1;transform:none}.rfq-mode-panel.active{display:grid}.dual-panel{position:static;display:none;opacity:1;transform:none;pointer-events:auto}.dual-panel.active{display:block}.use-grid,.scsp-grid,.regions-grid,.grid-4{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:1fr}.materials-grid{grid-template-columns:1fr}}
+    @media (max-width:860px){.nav-inner{grid-template-columns:1fr;gap:14px}.nav-links{justify-content:flex-start}.nav-actions{justify-content:flex-start}.signal-grid,.stat-grid,.grid-2,.grid-4,.kpi-grid,.form-grid.two,.form-grid.three,.use-grid,.scsp-grid,.regions-grid,.form-footer{grid-template-columns:1fr}.rfq-toggle{min-width:0;width:100%}.pdf-cta-content{flex-direction:column;align-items:flex-start}.pdf-meta{text-align:left}.footer-inner{flex-direction:column;align-items:flex-start}}
+    @media (max-width:640px){.container,.nav-inner,.footer-inner{width:min(var(--max),calc(100% - 22px))}.section,.rfq-switch-section{padding:72px 0}.hero{padding:74px 0 86px}.hero-card,.card,.proof-card,.rfq-info-card,.rfq-form-card,.material-card,.region-card,.compliance-card,.lock-card,.ops-card{padding:22px}.lead,.section-lead,.rfq-transition-copy{font-size:17px}}
+  
+  .dna-bridge{
+    margin-top:28px;
+    display:grid;
+    gap:10px;
+    max-width:680px;
+    padding-top:6px;
+  }
+  .dna-line{
+    font-size:16px;
+    line-height:1.62;
+    letter-spacing:-.01em;
+    color:rgba(244,247,251,.68);
+  }
+  .dna-link{
+    margin-top:18px;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-size:12px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:rgba(244,247,251,.48);
+  }
+  .dna-link::after{
+    content:"";
+    width:28px;
+    height:1px;
+    background:rgba(244,247,251,.22);
+  }
+
+</style>
+
+  <style>
+    :root{
+      --nav-bg: rgba(5,8,13,.90);
+      --nav-bg-scrolled: rgba(5,8,13,.96);
+      --nav-line: rgba(255,255,255,.08);
+      --nav-line-strong: rgba(255,255,255,.14);
+      --nav-text: #f4f7fb;
+      --nav-muted: rgba(244,247,251,.62);
+      --nav-muted-strong: rgba(244,247,251,.82);
+      --nav-subtle: rgba(244,247,251,.40);
+      --nav-shadow: 0 12px 40px rgba(0,0,0,.24);
+      --nav-max: 1280px;
+      --nav-t: 220ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    body{ padding-bottom: 76px; }
+
+    .nav,
+    .nav.reveal,
+    .nav.reveal-visible{
+      opacity:1 !important;
+      transform:none !important;
+      position: sticky;
+      top: 0;
+      z-index: 400;
+      background: var(--nav-bg);
+      border-bottom: 1px solid var(--nav-line);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition:
+        background var(--nav-t),
+        border-color var(--nav-t),
+        box-shadow var(--nav-t);
+    }
+
+    .nav.is-scrolled,
+    .nav.scrolled{
+      background: var(--nav-bg-scrolled);
+      border-bottom-color: var(--nav-line-strong);
+      box-shadow: var(--nav-shadow);
+    }
+
+    .nav-inner{
+      width: min(var(--nav-max), calc(100% - 28px));
+      margin: 0 auto;
+      min-height: 76px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 26px;
+    }
+
+    .brand{
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 186px;
+      color: var(--nav-text);
+      text-decoration: none;
+    }
+
+    .brand-title{ font-size: 17px; line-height: 1.1; font-weight: 600; letter-spacing: .02em; }
+    .brand-sub{ margin-top: 3px; font-size: 10px; line-height: 1.2; letter-spacing: .22em; text-transform: uppercase; color: var(--nav-subtle); }
+
+    .nav-links{ display: flex; justify-content: center; align-items: center; gap: 24px; flex-wrap: wrap; }
+    .nav-links a{ position: relative; display: inline-flex; align-items: center; min-height: 34px; color: var(--nav-muted); text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: .01em; transition: color var(--nav-t), opacity var(--nav-t); white-space: nowrap; }
+    .nav-links a:hover,.nav-links a:focus-visible{ color: var(--nav-text); }
+    .nav-links a[data-nav="scsp"]{ color: var(--nav-muted-strong); }
+    .nav-links a::after{ content:""; position:absolute; left:0; bottom:-5px; width:100%; height:1px; background: rgba(244,247,251,.76); transform: scaleX(0); transform-origin: left center; transition: transform var(--nav-t), opacity var(--nav-t); opacity: .9; }
+    .nav-links a.is-active{ color: var(--nav-text); }
+    .nav-links a.is-active::after{ transform: scaleX(1); }
+
+    .nav-actions{ display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+    .btn{ display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 18px; border-radius:999px; border:1px solid transparent; text-decoration:none; white-space:nowrap; font-size:13px; font-weight:600; letter-spacing:.01em; transition: transform var(--nav-t), background var(--nav-t), border-color var(--nav-t), color var(--nav-t), box-shadow var(--nav-t), opacity var(--nav-t); }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn:active{ transform: translateY(0); }
+    .btn-secondary{ background: transparent; color: var(--nav-text); border-color: rgba(255,255,255,.14); }
+    .btn-secondary:hover,.btn-secondary:focus-visible{ background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.18); }
+    .btn-primary{ background: #ffffff; color: #09111a; border-color: #ffffff; box-shadow: 0 10px 24px rgba(255,255,255,.10); }
+    .btn-primary:hover,.btn-primary:focus-visible{ box-shadow: 0 14px 30px rgba(255,255,255,.14); }
+
+    .decision-dock{ position: fixed; left: 0; bottom: 0; width: 100%; z-index: 450; background: rgba(5,8,13,.96); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid rgba(255,255,255,.08); }
+    .decision-dock-inner{ width: min(980px, calc(100% - 28px)); min-height: 62px; margin: 0 auto; display: flex; align-items: center; justify-content: flex-start; gap: 18px; }
+    .decision-meta{ display:flex; align-items:center; gap:14px; min-width:0; flex:0 1 auto; }
+    .decision-label{ font-size:11px; line-height:1; letter-spacing:.20em; text-transform:uppercase; color:rgba(244,247,251,.38); white-space:nowrap; }
+    .decision-state{ font-size:12px; line-height:1.2; letter-spacing:.16em; text-transform:uppercase; color:rgba(244,247,251,.68); white-space:nowrap; }
+    .decision-cta{ display:inline-flex; align-items:center; justify-content:center; min-height:40px; padding:0 16px; border-radius:999px; background:#ffffff; color:#09111a; border:1px solid #ffffff; text-decoration:none; font-size:13px; font-weight:600; white-space:nowrap; box-shadow:0 8px 18px rgba(255,255,255,.08); transition: transform var(--nav-t), box-shadow var(--nav-t), opacity var(--nav-t); }
+    .decision-cta:hover{ transform:translateY(-1px); box-shadow:0 12px 24px rgba(255,255,255,.12); }
+    .decision-cta:active{ transform:translateY(0); }
+
+    @media (max-width: 1220px){
+      .nav-inner{ grid-template-columns: 1fr; gap: 14px; padding: 14px 0; }
+      .nav-links{ justify-content: flex-start; gap: 14px 20px; }
+      .nav-actions{ justify-content: flex-start; flex-wrap: wrap; }
+    }
+    @media (max-width: 780px){
+      body{ padding-bottom: 88px; }
+      .nav-inner,.decision-dock-inner{ width: min(var(--nav-max), calc(100% - 20px)); }
+      .nav-links{ gap: 10px 16px; }
+      .nav-links a{ font-size:12px; min-height:30px; }
+      .btn{ min-height:40px; font-size:12px; padding:0 14px; }
+      .decision-dock-inner{ min-height: 72px; flex-direction: column; align-items: flex-start; justify-content: center; padding: 8px 0; }
+      .decision-meta{ width:100%; justify-content: space-between; }
+      .decision-state{ font-size:11px; letter-spacing:.14em; }
+      .decision-cta{ min-height:38px; font-size:12px; padding:0 14px; }
+    }
+  </style>
+
+
+<style id="enterprise-form-ui">
+  .rfq-form{
+    gap:20px;
+  }
+  .rfq-form label{
+    position:relative;
+  }
+  .rfq-form label span{
+    margin-bottom:9px;
+    letter-spacing:.01em;
+  }
+  .form-field{
+    display:block;
+    position:relative;
+  }
+  .form-label{
+    display:block;
+    margin-bottom:9px;
+    font-size:13px;
+    font-weight:600;
+    color:rgba(243,246,250,.88);
+    letter-spacing:.01em;
+  }
+  .rfq-form input,
+  .rfq-form textarea{
+    min-height:54px;
+    border-radius:16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.028));
+  }
+  .rfq-form textarea{
+    min-height:156px;
+  }
+  .rfq-form input:focus,
+  .rfq-form textarea:focus{
+    box-shadow:0 0 0 4px rgba(143,216,255,.07);
+  }
+  .ui-native-select{
+    display:none !important;
+  }
+  .ui-select{
+    position:relative;
+    width:100%;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .ui-select *,
+  .ui-select *::before,
+  .ui-select *::after{
+    -webkit-tap-highlight-color:transparent;
+  }
+  .ui-select-trigger{
+    width:100%;
+    min-height:54px;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.10);
+    background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.028));
+    -webkit-appearance:none;
+    appearance:none;
+    color:#f4f7fb;
+    padding:0 52px 0 16px;
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    text-align:left;
+    cursor:pointer;
+    outline:none;
+    transition:
+      border-color var(--t),
+      box-shadow var(--t),
+      background var(--t),
+      color var(--t);
+    position:relative;
+    user-select:none;
+    -webkit-user-select:none;
+    -webkit-touch-callout:none;
+    -webkit-tap-highlight-color:transparent;
+    caret-color:transparent;
+  }
+  .ui-select-trigger:hover{
+    background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.034));
+  }
+  .ui-select-trigger:focus-visible,
+  .ui-select.open .ui-select-trigger{
+    border-color:rgba(143,216,255,.58);
+    box-shadow:0 0 0 4px rgba(143,216,255,.07);
+    background:linear-gradient(180deg,rgba(255,255,255,.058),rgba(255,255,255,.04));
+  }
+  .ui-select-trigger.is-placeholder{
+    color:rgba(244,247,251,.46);
+  }
+  .ui-select-arrow{
+    position:absolute;
+    right:18px;
+    top:50%;
+    width:10px;
+    height:10px;
+    border-right:1.5px solid rgba(244,247,251,.72);
+    border-bottom:1.5px solid rgba(244,247,251,.72);
+    transform:translateY(-62%) rotate(45deg);
+    transition:
+      transform 260ms cubic-bezier(.16,1,.3,1),
+      border-color 200ms ease;
+    pointer-events:none;
+  }
+  .ui-select.open .ui-select-arrow{
+    transform:translateY(-38%) rotate(-135deg);
+  }
+  .ui-select-panel{
+    position:absolute;
+    top:calc(100% + 6px);
+    left:0;
+    right:0;
+    z-index:60;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:18px;
+    background:#0b1219;
+    box-shadow:0 18px 40px rgba(0,0,0,.28);
+    padding:6px;
+    display:grid;
+    gap:2px;
+    overflow:hidden;
+    isolation:isolate;
+    contain:layout paint style;
+    will-change:opacity,transform;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    -webkit-transform:translateZ(0);
+    opacity:0;
+    transform:translate3d(0,2px,0);
+    pointer-events:none;
+    transition:
+      opacity 120ms ease,
+      transform 140ms ease;
+  }
+  .ui-select.open .ui-select-panel{
+    opacity:1;
+    transform:translate3d(0,0,0);
+    pointer-events:auto;
+  }
+  .ui-select-option{
+    width:100%;
+    min-height:42px;
+    background:transparent;
+    background-color:transparent;
+    color:rgba(244,247,251,.76);
+    border-radius:14px;
+    padding:10px 12px;
+    font:inherit;
+    text-align:left;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    -webkit-tap-highlight-color:transparent;
+    -webkit-user-select:none;
+    user-select:none;
+    box-shadow:none;
+    outline:none;
+    white-space:normal;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    transition:background 120ms ease, color 120ms ease;
+  }
+  .ui-select-option:hover,
+  .ui-select-option:focus,
+  .ui-select-option:focus-visible,
+  .ui-select-option:active{
+    background:rgba(255,255,255,.035);
+    color:#fff;
+    outline:none;
+    box-shadow:none;
+  }
+  .ui-select-option.is-selected{
+    background:rgba(255,255,255,.04);
+    color:#fff;
+    box-shadow:none;
+  }
+  .ui-select.is-invalid .ui-select-trigger{
+    border-color:rgba(255,255,255,.18);
+    box-shadow:0 0 0 3px rgba(255,255,255,.04);
+  }
+  @supports (-webkit-touch-callout: none) {
+    .ui-select-panel{
+      background:#0a1118;
+      -webkit-transform:translate3d(0,2px,0);
+      outline:1px solid transparent;
+    }
+    .ui-select.open .ui-select-panel{
+      -webkit-transform:translate3d(0,0,0);
+    }
+    .ui-select-trigger,
+    .ui-select-option{
+      outline:1px solid transparent;
+    }
+  }
+  .rfq-switch-section.rfq-engaged{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .rfq-form-card.is-guided{
+    border-color:rgba(143,216,255,.18);
+    box-shadow:0 0 0 1px rgba(143,216,255,.08), 0 18px 42px rgba(0,0,0,.24);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .ui-select-trigger,
+    .ui-select-panel,
+    .ui-select-arrow,
+    .ui-select-option{
+      transition:none !important;
+    }
+  }
+</style>
+
+
+<style id="materials-perfect-alignment">
+  /* Perfect internal alignment for materials cards */
+  .materials-grid{
+    align-items:stretch !important;
+  }
+  .materials-grid .material-card{
+    display:grid !important;
+    grid-template-rows:
+      auto   /* top */
+      96px   /* lead */
+      56px   /* apps */
+      auto   /* decision meta */
+      auto   /* toggle */
+      190px  /* role panel */
+      1fr;   /* table */
+    height:100% !important;
+    align-content:start;
+  }
+  .materials-grid .material-top{
+    min-height:84px;
+    align-items:flex-start !important;
+  }
+  .materials-grid .material-top > div:first-child{
+    min-height:84px;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+  }
+  .materials-grid .material-top h3{
+    min-height:58px;
+    display:flex;
+    align-items:flex-start;
+    margin:0;
+  }
+  .materials-grid .purity{
+    min-height:18px;
+  }
+  .materials-grid .material-meta{
+    min-height:40px;
+    display:block;
+  }
+  .materials-grid .material-lead{
+    min-height:96px;
+    margin-top:18px;
+    display:block;
+  }
+  .materials-grid .material-apps{
+    min-height:56px;
+    margin-top:14px;
+    display:block;
+  }
+  .materials-grid .dual-toggle{
+    min-height:46px;
+    align-items:flex-start;
+    margin-top:24px;
+  }
+  .materials-grid .panel-stage{
+    min-height:190px !important;
+    height:190px !important;
+    margin-top:18px;
+  }
+  .materials-grid .dual-panel,
+  .materials-grid .dual-panel.active{
+    inset:0;
+  }
+  .materials-grid .subcard{
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+  }
+  .materials-grid .subcard ul{
+    margin-top:14px;
+  }
+  .materials-grid table{
+    margin-top:24px !important;
+    align-self:end;
+    table-layout:fixed;
+  }
+  .materials-grid table tr{
+    height:56px;
+  }
+  .materials-grid table td{
+    vertical-align:top;
+  }
+
+  @media (max-width:1160px){
+    .materials-grid .material-card{
+      grid-template-rows:auto auto auto auto auto auto !important;
+    }
+    .materials-grid .material-top,
+    .materials-grid .material-top > div:first-child,
+    .materials-grid .material-top h3,
+    .materials-grid .material-lead,
+    .materials-grid .material-apps,
+    .materials-grid .panel-stage,
+    .materials-grid table tr{
+      min-height:0 !important;
+      height:auto !important;
+    }
+  }
+</style>
+
+
+<style id="materials-hard-equal-fix">
+.materials-grid .material-lead{
+  height:96px !important;
+  display:block;
+}
+.materials-grid .material-apps{
+  height:56px !important;
+  display:block;
+}
+.materials-grid .panel-stage{
+  height:190px !important;
+}
+</style>
+
+</head>
+<body>
+  <header class="nav" id="siteHeader">
+  <div class="nav-inner">
+    <a href="#hero" class="brand" aria-label="ApexMaterials home">
+      <div class="brand-title">ApexMaterials</div>
+      <div class="brand-sub">Specification. Verification. Control.</div>
+    </a>
+
+    <nav class="nav-links" aria-label="Primary navigation">
+      <a href="#scsp" data-nav="scsp">SCSP™</a>
+      <a href="#proof" data-nav="proof">Verification</a>
+      <a href="#materials" data-nav="materials">Materials</a>
+      <a href="#compliance" data-nav="compliance">Quality</a>
+      <a href="#rfq" data-nav="rfq">RFQ</a>
+    </nav>
+
+    <div class="nav-actions">
+      <a class="btn btn-secondary" href="#proof">Review Verification</a>
+      <a class="btn btn-primary" href="#rfq">Request Controlled Quotation</a>
+    </div>
+  </div>
+</header>
+
+  <main>
+    <section class="hero" id="hero">
+      <div class="container">
+        <div class="hero-grid">
+          <div class="reveal reveal-visible stagger-1">
+            <div class="hero-chip">Specification-Controlled Supply System</div>
+            <h1 style="margin-top:20px">Specification-controlled material supply for qualification-critical programs</h1>
+            <p class="lead">ApexMaterials</p>
+            <p class="sublead">Execution is aligned to specification definition, verification protocol, and controlled delivery conditions.</p>
+            <div class="dna-bridge" aria-label="ApexMaterials DNA">
+              <div class="dna-line">Specification defines the supply scope.</div>
+              <div class="dna-line">Verification establishes conformity.</div>
+              <div class="dna-line">Control maintains consistency across qualification and recurring supply.</div>
+              <a class="dna-link" href="#scsp">View SCSP™ Protocol</a>
+            </div>
+            <div class="actions"><a class="btn btn-primary" href="#rfq">Request Controlled Quotation</a><a class="btn btn-secondary" href="#proof">Review Verification</a></div>
+            <a class="pdf-cta" href="#rfq" aria-label="Enterprise capability deck">
+              <div class="pdf-cta-content">
+                <div class="pdf-cta-left"><div class="pdf-icon">PDF</div><div><div class="pdf-title">Request Enterprise Capability Deck</div><div class="pdf-sub">SCSP™ framework, verification logic, materials portfolio, and documentation scope</div></div></div>
+                <div class="pdf-meta"><div>Available on request</div><div class="pdf-size">Shared after qualification review</div></div>
+              </div>
+              <div class="pdf-note">Designed for engineering, procurement, quality, and supplier approval workflows.</div>
+            </a>
+            <div class="signal-grid"><div class="signal">Qualification-driven supply</div><div class="signal">Procurement-ready documentation</div><div class="signal">Analytical verification</div><div class="signal">Recurring program support</div><div class="signal">Destination-aware execution</div></div>
+          </div>
+          <aside class="hero-card reveal reveal-visible stagger-3" aria-label="Commercial summary">
+            <div class="stat-grid">
+              <div class="stat"><strong>Specification Scope</strong><span>Up to 7N purity across controlled material classes</span></div>
+              <div class="stat"><strong>Verification Methods</strong><span>GDMS / ICP-MS / lot-level validation protocol</span></div>
+              <div class="stat"><strong>Lot Traceability</strong><span>Batch-level documentation and reproducibility control</span></div>
+              <div class="stat"><strong>Delivery Coverage</strong><span>Global supply with export and origin compliance</span></div>
+            </div>
+            <div class="hero-note">Supply execution is governed by specification, verification protocol, and batch-level control. Not for price-driven sourcing. For environments where failure cost exceeds material cost.</div>
+            <div class="hero-note" style="margin-top:16px">Typical response: 1–3 business days following specification review · Designed for qualification-critical sourcing and repeat supply programs · Documentation aligned before shipment</div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="scsp">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="eyebrow">SCSP™</div>
+          <h2 style="margin-top:16px">The formula resolves into protocol.</h2>
+          <p class="section-lead">Specification becomes validation. Verification becomes confidence. Control becomes repeatable outcome across documentation, approval, and delivery.</p>
+        </div>
+        <div class="section-head reveal" style="margin-top:48px"><div class="eyebrow">Verification</div><h2 style="margin-top:16px">Supplier qualification is based on specification control, verification capability, and supply consistency.</h2><p class="section-lead">Pricing reflects defined specification and required analytical and documentation scope.</p></div>
+        <div class="grid-2" style="margin-top:36px">
+          <article class="compare-side bad reveal stagger-1"><h3>Commodity Sourcing</h3><ul class="compare-list"><li>Price-led selection</li><li>Unclear specification logic</li><li>Reactive documentation</li><li>Limited qualification support</li><li>Higher downstream ambiguity</li></ul></article>
+          <article class="compare-side good reveal stagger-2"><h3>ApexMaterials</h3><ul class="compare-list"><li>Specification-defined sourcing</li><li>Impurity-aware material framing</li><li>Documentation structured before execution</li><li>Qualification-aligned review path</li><li>Controlled delivery conditions</li></ul></article>
+        </div>
+        <div class="section-head reveal" style="margin-top:56px"><div class="eyebrow">Risk Framing</div><h2 style="margin-top:16px">Supplier selection isn’t the problem. Uncontrolled variables are.</h2></div>
+        <div class="use-grid">
+          <div class="use-card reveal stagger-1">qualification failure is expensive</div>
+          <div class="use-card reveal stagger-2">impurity thresholds affect performance</div>
+          <div class="use-card reveal stagger-3">internal approval depends on documentation</div>
+          <div class="use-card reveal stagger-4">supplier ambiguity delays production</div>
+          <div class="use-card reveal stagger-5">recurring supply must remain controlled</div>
+        </div>
+        <div class="section-head reveal" style="margin-top:56px"><div class="eyebrow">SCSP™</div><h2 style="margin-top:16px">Specification-Controlled Supply Protocol</h2><p class="section-lead">SCSP™ removes uncertainty across validation, procurement, documentation, and delivery.</p></div>
+        <div class="scsp-grid">
+          <div class="scsp-step reveal stagger-1"><div class="step-no">01</div><div class="step-title">Specification Validation</div><div class="step-copy">Purity class, form, quantity, application, and destination are aligned before commercial progression.</div></div>
+          <div class="scsp-step reveal stagger-2"><div class="step-no">02</div><div class="step-title">Analytical Verification</div><div class="step-copy">GDMS / ICP-MS methods support engineering review and qualification confidence.</div></div>
+          <div class="scsp-step reveal stagger-3"><div class="step-no">03</div><div class="step-title">RFQ Structuring</div><div class="step-copy">Quotation is framed around technical and commercial clarity rather than generic supplier exchange.</div></div>
+          <div class="scsp-step reveal stagger-4"><div class="step-no">04</div><div class="step-title">Documentation Readiness</div><div class="step-copy">CoA, SDS, TDS, and related requirements are defined before shipment.</div></div>
+          <div class="scsp-step reveal stagger-5"><div class="step-no">05</div><div class="step-title">Controlled Delivery</div><div class="step-copy">Packaging integrity, traceability, and destination-aware delivery terms remain aligned through execution.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-dark" id="proof">
+      <div class="container">
+        <div class="section-head reveal"><div class="eyebrow">Proof Layer</div><h2 style="margin-top:16px">When approval requires proof — not claims.</h2><p class="section-lead">Each batch is tied to data: identity, impurities, method, documentation.</p></div>
+        <div class="proof-layout">
+          <div class="proof-card proof-visual reveal stagger-1"><div class="triangle-shell"><div class="triangle"></div></div></div>
+          <div class="proof-card reveal stagger-2">
+            <div class="eyebrow">Verified Record</div><h3 style="margin-top:14px">Batch ID: CU-6N-2026-00421</h3>
+            <div class="kpi-grid">
+              <div class="kpi"><div class="label">Material</div><div class="value">Copper (Cu)</div></div>
+              <div class="kpi"><div class="label">Purity</div><div class="value">99.9999% (6N)</div></div>
+              <div class="kpi"><div class="label">Method</div><div class="value">GDMS / ICP-MS</div></div>
+              <div class="kpi"><div class="label">Total Impurities</div><div class="value">&lt; 1 ppm</div></div>
+            </div>
+            <div class="mini-table"><div class="mini-row"><span>Fe</span><strong>0.12 ppm</strong></div><div class="mini-row"><span>Pb</span><strong>0.03 ppm</strong></div><div class="mini-row"><span>Ag</span><strong>0.21 ppm</strong></div><div class="mini-row"><span>Ni</span><strong>0.07 ppm</strong></div></div>
+            <div class="proof-actions"><a class="btn btn-primary" href="#rfq">View CoA</a><a class="btn btn-secondary" href="#rfq">Download TDS</a><a class="btn btn-ghost" href="#rfq">Request Lab Data</a></div>
+          </div>
+        </div>
+        <div class="lock-card reveal stagger-3"><div class="lock-line">Supplier qualification is based on specification control, verification capability, and supply consistency.</div><div class="lock-sub">Pricing reflects defined specification and required analytical and documentation scope.</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="ops">
+      <div class="container">
+        <div class="section-head reveal"><div class="eyebrow">Operational Signals</div><h2 style="margin-top:16px">Built for real procurement environments.</h2></div>
+        <div class="grid-4" style="margin-top:32px">
+          <div class="ops-card reveal stagger-1"><h3>24–48h</h3><p>Typical response time for structured RFQ requests</p></div>
+          <div class="ops-card reveal stagger-2"><h3>Export-ready</h3><p>Documentation aligned before shipment (CoA / SDS / TDS)</p></div>
+          <div class="ops-card reveal stagger-3"><h3>Multi-region</h3><p>North America · Europe · Australia</p></div>
+          <div class="ops-card reveal stagger-4"><h3>Program-ready</h3><p>Supports qualification → recurring supply transition</p></div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section" id="fit">
+      <div class="container">
+        <div class="card reveal">
+          <div class="eyebrow">Fit Criteria</div>
+          <h2 style="margin-top:16px">Not a fit if price is the only variable. Best fit if control is.</h2>
+          <div class="grid-2" style="margin-top:24px">
+            <div>
+              <p style="font-size:13px; letter-spacing:.18em; text-transform:uppercase; color:rgba(244,247,251,.5)">Not a fit if</p>
+              <ul class="list">
+                <li>You are comparing lowest-price suppliers</li>
+                <li>Specification is undefined</li>
+                <li>Documentation is not required</li>
+              </ul>
+            </div>
+            <div>
+              <p style="font-size:13px; letter-spacing:.18em; text-transform:uppercase; color:rgba(244,247,251,.5)">Best fit</p>
+              <ul class="list">
+                <li>Qualification-critical sourcing</li>
+                <li>Defined impurity / performance thresholds</li>
+                <li>Approval depends on documentation</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="rfq-switch-section" id="rfq">
+      <div class="container">
+        <div class="rfq-transition reveal"><div class="eyebrow">Request a Quote</div><h2 style="margin-top:16px">Quotation follows requirement clarity.</h2><p class="rfq-transition-copy">Submit specification-defined inquiry for technical review prior to quotation issuance.</p><div class="rfq-toggle-wrap"><div class="rfq-toggle-label">Prefer a faster commercial entry point?</div><div class="rfq-toggle" role="tablist" aria-label="RFQ mode switcher"><div class="rfq-toggle-indicator" aria-hidden="true"></div><button class="rfq-toggle-btn active" id="tab-spec" type="button" role="tab" aria-selected="true" aria-controls="panel-spec" data-mode="spec">Specification Request</button><button class="rfq-toggle-btn" id="tab-simple" type="button" role="tab" aria-selected="false" aria-controls="panel-simple" data-mode="simple">Simple RFQ</button></div></div></div>
+        <div class="rfq-panel-grid reveal stagger-1"><div class="rfq-stage">
+          <div class="rfq-mode-panel active" id="panel-spec" role="tabpanel" aria-labelledby="tab-spec" data-panel="spec">
+            <div class="rfq-info-card">
+              <div class="eyebrow">Primary Path</div><h3 style="margin-top:16px">Request a Quote</h3>
+              <p class="rfq-lead">Submit specification-defined inquiry for technical review prior to quotation issuance.</p>
+              <div class="rfq-warning">Only specification-complete inquiries proceed to quotation.</div>
+              <div class="rfq-steps">
+                <div class="rfq-step"><strong>Specification Review</strong><span>Submitted requirements are reviewed against material type, purity class, application, and constraints.</span></div>
+                <div class="rfq-step"><strong>Technical Clarification</strong><span>Documentation, verification, and delivery variables are aligned before quotation is issued.</span></div>
+                <div class="rfq-step"><strong>Quotation Definition</strong><span>Commercial response reflects validated scope, documentation package, and controlled delivery conditions.</span></div>
+              </div>
+              <div class="rfq-process">
+                <div class="step-no">After RFQ</div>
+                <div class="rfq-steps">
+                  <div class="rfq-step"><strong>Specification Review</strong><span>Submitted specification is reviewed for completeness and feasibility.</span></div>
+                  <div class="rfq-step"><strong>Technical Clarification</strong><span>Technical details are confirmed if required before quotation.</span></div>
+                  <div class="rfq-step"><strong>Quotation Definition</strong><span>Scope, documentation, and delivery terms are defined.</span></div>
+                  <div class="rfq-step"><strong>Supply Execution Alignment</strong><span>Delivery route and documentation are aligned prior to execution.</span></div>
+                </div>
+              </div>
+              <p class="hover-note">RFQ responses are provided following internal review of specification and supply feasibility.</p>
+            </div>
+            <div class="rfq-form-card">
+              <form class="rfq-form" id="specRequestForm" novalidate action="mailto:info@apexmaterials.com" method="post" enctype="text/plain">
+                <input type="hidden" name="_subject" value="New Specification RFQ — ApexMaterials">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_template" value="table">
+                <input type="hidden" name="rfq_type" value="spec">
+                <div class="form-section-title">Contact</div>
+                <div class="form-grid two">
+                  <label><span>Full name (for technical follow-up) *</span><input type="text" name="full_name" required></label>
+                  <label><span>Work email (required for qualification-stage communication) *</span><input type="email" name="work_email" required></label>
+                </div>
+                <div class="form-grid one"><label><span>Company (approval / procurement entity) *</span><input type="text" name="company" required></label></div>
+                <div class="form-section-title">Material Definition</div>
+                <div class="form-grid three">
+                  <div class="form-field"><div class="form-label">Material category *</div><select name="material_category" required><option value="">Select material</option><option>Copper — Up to 99.99999% (7N)</option><option>Aluminum</option><option>Zinc — Up to 99.9995% (5N5)</option><option>Rare Earth Metals</option><option>Other</option></select></div>
+                  <label><span>Required purity / grade</span><input type="text" name="purity_grade" placeholder="e.g. Up to 7N, defined grade, custom spec"></label>
+                  <div class="form-field"><div class="form-label">Form</div><select name="form_type"><option value="">Select form</option><option>Ingots</option><option>Bars</option><option>Strips</option><option>Powder</option><option>Granules</option><option>Custom</option></select></div>
+                </div>
+                <div class="form-section-title">Program Context</div>
+                <div class="form-grid three">
+                  <label><span>Estimated quantity</span><input type="text" name="estimated_quantity" placeholder="e.g. 2 MT / monthly"></label>
+                  <label><span>Required timeline</span><input type="text" name="timeline" placeholder="e.g. within 30–60 days"></label>
+                  <label><span>Destination</span><input type="text" name="destination" placeholder="Country / region / site"></label>
+                </div>
+                <div class="form-section-title">Technical Details</div>
+                <div class="form-grid one"><label><span>Specification context (defines quotation accuracy) *</span><textarea name="technical_details" required placeholder="Describe application, purity target, impurity limits, and any constraints affecting qualification or performance."></textarea></label></div>
+                <p class="form-note">Provide specification, required form, and application context.</p>
+                <p class="form-commit">Typical response time: 1–3 business days following specification review.<br>Quotation defines scope, documentation, and delivery terms.<br>Quotation structure is standardized to ensure clarity and comparability across requests.<br>MOQ and lead time are defined per material and specification.</p>
+                <div class="form-footer">
+                  <aside class="after-submission-card" aria-label="After submission steps" data-flow-card data-state="idle">
+                    <div class="eyebrow">After Submission</div>
+                    <h3>What happens next</h3>
+                    <div class="after-submission-meta"><strong>System Feedback</strong><span data-flow-timing>Typical first response: 1–3 business days</span></div>
+                    <div class="system-progress" aria-hidden="true"><div class="system-progress-bar"><div class="system-progress-fill" data-flow-progress></div></div><div class="system-progress-label" data-flow-label>Ready for review</div></div>
+                    <div class="system-flow" role="list">
+                      <div class="system-step is-active" role="listitem" data-flow-step="1"><div class="system-step-no">01</div><div><strong>Specification intake</strong><span>Your request enters technical review with material, form, quantity, destination, and use-case context.</span></div></div>
+                      <div class="system-step is-muted" role="listitem" data-flow-step="2"><div class="system-step-no">02</div><div><strong>Variable resolution</strong><span>If purity, form, documentation, or delivery variables are missing, clarification is requested before commercial progression.</span></div></div>
+                      <div class="system-step is-muted" role="listitem" data-flow-step="3"><div class="system-step-no">03</div><div><strong>Controlled quotation issue</strong><span>Quotation is released only after requirement clarity is confirmed, so pricing reflects the real approval path.</span></div></div>
+                    </div>
+                    <div class="system-feedback" data-flow-feedback><strong>Current state:</strong> your request is ready to enter specification review. Submission triggers structured intake before quotation is issued. Review workflow is structured to reduce iteration cycles and accelerate procurement readiness.</div>
+                    <div class="system-state-chip" data-flow-chip><span class="system-state-dot"></span><span data-flow-chip-text>Ready for submission</span></div>
+                  </aside>
+                  <div class="form-actions"><button type="submit" class="rfq-submit-btn">Submit for Specification Review</button><div class="form-success" aria-live="polite">Request received. Now in specification validation. Quotation follows only after clarity. Response: typically within 1–3 business days.</div></div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="rfq-mode-panel" id="panel-simple" role="tabpanel" aria-labelledby="tab-simple" data-panel="simple" hidden>
+            <div class="rfq-info-card">
+              <div class="eyebrow">Fallback Path</div><h3 style="margin-top:16px">Fast commercial entry point</h3>
+              <p class="rfq-lead">For buyers who need a fast commercial entry point and will refine specifications during follow-up.</p>
+              <div class="rfq-steps">
+                <div class="rfq-step"><strong>Commercial Intake</strong><span>Your request is routed by material and commercial relevance.</span></div>
+                <div class="rfq-step"><strong>Scope Clarification</strong><span>We review the basic scope and follow up on missing details.</span></div>
+                <div class="rfq-step"><strong>Quotation Path</strong><span>Suitable where details are refined after initial contact.</span></div>
+              </div>
+              <p class="path-note">Simple RFQ = faster entry. Specification Request = higher accuracy.</p>
+            </div>
+            <div class="rfq-form-card">
+              <form class="rfq-form" id="simpleRfqForm" novalidate action="mailto:info@apexmaterials.com" method="post" enctype="text/plain">
+                <input type="hidden" name="_subject" value="New Simple RFQ — ApexMaterials">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_template" value="table">
+                <input type="hidden" name="rfq_type" value="simple">
+                <div class="form-section-title">Contact</div>
+                <div class="form-grid two"><label><span>Full name *</span><input type="text" name="full_name" required></label><label><span>Work email *</span><input type="email" name="work_email" required></label></div>
+                <div class="form-grid one"><label><span>Company *</span><input type="text" name="company" required></label></div>
+                <div class="form-section-title">Request</div>
+                <div class="form-grid two"><div class="form-field"><div class="form-label">Material *</div><select name="material" required><option value="">Select material</option><option>Copper — Up to 99.99999% (7N)</option><option>Aluminum</option><option>Zinc — Up to 99.9995% (5N5)</option><option>Rare Earth Metals</option><option>Other</option></select></div><label><span>Quantity</span><input type="text" name="quantity" placeholder="e.g. 500 kg"></label></div>
+                <div class="form-grid one"><label><span>Message *</span><textarea name="message" required placeholder="Share material, quantity, timing, and any commercial or documentation request."></textarea></label></div>
+                <p class="form-commit">Typical response time: 1–3 business days following specification review.<br>Quotation defines scope, documentation, and delivery terms.<br>Quotation structure is standardized to ensure clarity and comparability across requests.<br>MOQ and lead time are defined per material and specification.</p>
+                <div class="form-actions"><button type="submit" class="rfq-submit-btn">Request Commercial Follow-Up</button><div class="form-success" aria-live="polite">RFQ received. Your request will be reviewed and routed for commercial follow-up.</div></div>
+              </form>
+            </div>
+
+            <div class="card" style="margin-top:20px">
+              <div class="eyebrow">After Submission</div>
+              <h3 style="margin-top:16px">What happens next</h3>
+              <ul class="list">
+                <li>Specification is reviewed</li>
+                <li>Missing variables are clarified</li>
+                <li>Quotation is issued only after requirement clarity is confirmed</li>
+              </ul>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </section>
+
+    <section class="section section-dark" id="materials">
+      <div class="container">
+        <div class="section-head reveal"><div class="eyebrow">Materials</div><h2 style="margin-top:16px;max-width:18ch">Materials supplied within a specification-controlled framework.</h2><p class="section-lead" style="max-width:760px">Material categories are presented through specification, form, impurity logic, and commercial supply structure.</p><p class="section-lead" style="margin-top:12px;font-size:14px;color:rgba(244,247,251,.55);max-width:760px">CAS numbers are provided for identification purposes only. Quotation scope is defined by specification, impurity profile, and analytical requirements.</p></div>
+        <div class="materials-grid">
+          <article class="material-card reveal stagger-1"><div class="material-top"><div><h3>Copper (Cu)</h3><div class="purity">Up to 99.99999% (7N)</div><div class="material-meta">CAS No: 7440-50-8<br>Internal Ref: KE-08896</div></div><div class="badge">5N–7N</div></div><p class="material-lead">Copper supplied within defined purity ranges for specification-controlled applications.</p><div class="material-apps">Forms: ingot, bar, powder (including ultrafine)</div><div class="material-decision-meta">Applied in systems requiring controlled material properties and repeatable performance.</div><div class="dual-toggle"><button class="toggle-btn active" data-target="cu-eng">Engineering</button><button class="toggle-btn" data-target="cu-proc">Procurement</button><button class="toggle-btn" data-target="cu-prog">Program</button></div><div class="panel-stage"><div id="cu-eng" class="dual-panel active"><div class="subcard"><div class="label">Engineering</div><ul><li>Tolerances and acceptable ranges</li><li>Form factor and processing compatibility</li><li>Measurement method selection</li></ul></div></div><div id="cu-proc" class="dual-panel"><div class="subcard"><div class="label">Procurement</div><ul><li>Quotation scope definition</li><li>Documentation package (CoA, traceability)</li><li>Commercial terms alignment</li></ul></div></div><div id="cu-prog" class="dual-panel"><div class="subcard"><div class="label">Program</div><ul><li>Supply continuity planning</li><li>Batch-to-batch repeatability</li><li>Risk and deviation control</li></ul></div></div></div><table><tr><td>Specification</td><td>Up to 7N (application-dependent)</td></tr><tr><td>Forms</td><td>Ingot / bar / powder (incl. ultrafine)</td></tr><tr><td>Impurity profile</td><td>Defined per analytical requirement</td></tr><tr><td>Commercial terms</td><td>Lot-based / contract supply</td></tr></table></article>
+          <article class="material-card reveal stagger-2"><div class="material-top"><div><h3>Aluminum (Al)</h3><div class="purity">Defined by application</div><div class="material-meta">CAS No: 7429-90-5</div></div><div class="badge">Industrial / High Purity</div></div><p class="material-lead">Aluminum supplied for industrial processing and alloy preparation environments.</p><div class="material-apps">Forms: ingot, billet, granule</div><div class="material-decision-meta">Applied in systems requiring controlled material properties and repeatable performance.</div><div class="dual-toggle"><button class="toggle-btn active" data-target="al-eng">Engineering</button><button class="toggle-btn" data-target="al-proc">Procurement</button><button class="toggle-btn" data-target="al-prog">Program</button></div><div class="panel-stage"><div id="al-eng" class="dual-panel active"><div class="subcard"><div class="label">Engineering</div><ul><li>Tolerances and acceptable ranges</li><li>Form factor and processing compatibility</li><li>Measurement method selection</li></ul></div></div><div id="al-proc" class="dual-panel"><div class="subcard"><div class="label">Procurement</div><ul><li>Quotation scope definition</li><li>Documentation package (CoA, traceability)</li><li>Commercial terms alignment</li></ul></div></div><div id="al-prog" class="dual-panel"><div class="subcard"><div class="label">Program</div><ul><li>Supply continuity planning</li><li>Batch-to-batch repeatability</li><li>Risk and deviation control</li></ul></div></div></div><table><tr><td>Specification</td><td>Defined per application and purity requirement</td></tr><tr><td>Impurities</td><td>Controlled by refining route</td></tr><tr><td>Forms</td><td>Ingot / billet / granule</td></tr><tr><td>Commercial terms</td><td>Bulk / contract supply</td></tr></table></article>
+          <article class="material-card reveal stagger-3"><div class="material-top"><div><h3>Zinc (Zn)</h3><div class="purity">Up to 99.9995% (5N5)</div><div class="material-meta">CAS No: 7440-66-6</div></div><div class="badge">5N–5N5</div></div><p class="material-lead">Zinc supplied for powder-based processes, coatings, and material formulations.</p><div class="material-apps">Forms: powder / granule</div><div class="material-decision-meta">Applied in systems requiring controlled material properties and repeatable performance.</div><div class="dual-toggle"><button class="toggle-btn active" data-target="zn-eng">Engineering</button><button class="toggle-btn" data-target="zn-proc">Procurement</button><button class="toggle-btn" data-target="zn-prog">Program</button></div><div class="panel-stage"><div id="zn-eng" class="dual-panel active"><div class="subcard"><div class="label">Engineering</div><ul><li>Tolerances and acceptable ranges</li><li>Form factor and processing compatibility</li><li>Measurement method selection</li></ul></div></div><div id="zn-proc" class="dual-panel"><div class="subcard"><div class="label">Procurement</div><ul><li>Quotation scope definition</li><li>Documentation package (CoA, traceability)</li><li>Commercial terms alignment</li></ul></div></div><div id="zn-prog" class="dual-panel"><div class="subcard"><div class="label">Program</div><ul><li>Supply continuity planning</li><li>Batch-to-batch repeatability</li><li>Risk and deviation control</li></ul></div></div></div><table><tr><td>Specification</td><td>Up to 5N5</td></tr><tr><td>Form</td><td>Powder / granule</td></tr><tr><td>Use</td><td>Coatings / material formulations / powder-based processes</td></tr><tr><td>Commercial terms</td><td>Lot / batch supply</td></tr></table></article>
+          <article class="material-card reveal stagger-4"><div class="material-top"><div><h3>Rare Earth Metals</h3><div class="purity">Custom grades available</div></div><div class="badge">REE Portfolio</div></div><p class="material-lead">Rare earth metals supplied as a controlled portfolio for specification-driven programs.</p><div class="material-apps">REE portfolio available on request</div><div class="material-decision-meta">Applied in systems requiring controlled material properties and repeatable performance.</div><div class="dual-toggle"><button class="toggle-btn active" data-target="re-eng">Engineering</button><button class="toggle-btn" data-target="re-proc">Procurement</button><button class="toggle-btn" data-target="re-prog">Program</button></div><div class="panel-stage"><div id="re-eng" class="dual-panel active"><div class="subcard"><div class="label">Engineering</div><ul><li>Tolerances and acceptable ranges</li><li>Form factor and processing compatibility</li><li>Measurement method selection</li></ul></div></div><div id="re-proc" class="dual-panel"><div class="subcard"><div class="label">Procurement</div><ul><li>Quotation scope definition</li><li>Documentation package (CoA, traceability)</li><li>Commercial terms alignment</li></ul></div></div><div id="re-prog" class="dual-panel"><div class="subcard"><div class="label">Program</div><ul><li>Supply continuity planning</li><li>Batch-to-batch repeatability</li><li>Risk and deviation control</li></ul></div></div></div><table><tr><td>Parameter</td><td>Specification</td></tr><tr><td>Portfolio</td><td>Lanthanides / selected elements</td></tr><tr><td>Grades</td><td>Standard / custom</td></tr><tr><td>Supply model</td><td>Program-based / qualification-dependent</td></tr></table></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="markets">
+      <div class="container">
+        <div class="section-head reveal"><div class="eyebrow">Regional Regulatory Context</div><h2 style="margin-top:16px">Structured for buyers across Canada, the United States, Europe, and Australia.</h2><p class="section-lead">Aligned with documentation expectations, import requirements, and coordination across technical and procurement teams.</p></div>
+        <div class="regions-grid"><div class="region-card reveal stagger-1"><h3>Canada</h3><p>Clear technical documentation, SDS alignment, classification clarity, and coordination between technical, commercial, and receiving teams.</p></div><div class="region-card reveal stagger-2"><h3>United States</h3><p>Scope clarity, documentation accuracy, responsibility definition, and import-readiness for controlled industrial supply into high-consequence environments.</p></div><div class="region-card reveal stagger-3"><h3>Europe</h3><p>Traceability, documentation discipline, material transparency, and regulatory awareness including destination-specific expectations where relevant.</p></div><div class="region-card reveal stagger-4"><h3>Australia</h3><p>Import practicality, logistics coordination, documentation completeness, and supply continuity across distance-sensitive procurement programs.</p></div></div>
+      </div>
+    </section>
+
+    <section class="section section-dark" id="compliance">
+      <div class="container">
+        <div class="section-head reveal"><div class="eyebrow">Quality & Supply Control</div><h2 style="margin-top:16px">Qualification-oriented supply signals for controlled procurement environments.</h2><p class="section-lead">Quality is defined by specification compliance, verified by defined analytical methods, and maintained through controlled supply processes.</p></div>
+        <div class="grid-4" style="margin-top:36px"><div class="compliance-card reveal stagger-1"><h3>Quality Management</h3><ul class="list"><li>Operations are conducted within a controlled quality management framework with defined responsibility and documentation control.</li><li>Material sourcing, verification, and delivery are aligned with defined requirements</li><li>Verification methods are selected according to specification and control requirement</li><li>Supply scope is limited to specification-controlled materials and defined delivery conditions</li></ul></div><div class="compliance-card reveal stagger-2"><h3>Documentation Package</h3><ul class="list"><li>Documentation includes certificate of analysis, lot traceability, and measurement method reference.</li><li>Each delivery can be linked to specification, analytical data, and documentation set</li><li>Documentation package is aligned with quoted scope and approval requirements</li><li>Representative documentation set is available upon request</li><li>Unspecified requirements are not assumed and may require clarification prior to supply</li></ul></div><div class="compliance-card reveal stagger-3"><h3>Non-Conformance &amp; Control</h3><ul class="list"><li>Non-conformance is handled through documented review and corrective action process</li><li>Non-conforming material is identified and not released without review</li><li>Material changes affecting specification or supply conditions are subject to prior communication and agreement</li><li>Supply control and documentation are managed under defined internal quality responsibility</li><li>Material suitability remains the responsibility of the requesting party unless explicitly defined in specification</li></ul></div><div class="compliance-card reveal stagger-4"><h3>Continuity &amp; Delivery</h3><ul class="list"><li>Supply is structured to support repeat orders and program continuity under consistent specification control.</li><li>Designed for qualification-critical and repeat supply programs</li><li>Material origin and export classification can be disclosed upon request, subject to supply chain constraints and applicable regulations</li><li>Delivery terms are defined per quotation and may include international commercial terms (Incoterms)</li></ul></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="reveal">
+    <div class="footer-inner">
+      <div>
+        <div class="brand-title">ApexMaterials</div>
+        <div class="brand-sub">Specification. Verification. Control.</div>
+        <div class="footer-copy">ApexMaterials operates through specification, verification, and control across qualification-critical and production-sensitive industrial supply.<br>Supplier qualification materials are available upon formal request.</div>
+        <div class="footer-meta">Business inquiries are reviewed based on specification completeness and program relevance criteria.</div>
+        <div class="footer-meta">Structured RFQ response: typically within 1–3 business days after specification review</div>
+        <div class="footer-meta">Operating across North America, Europe, and Australia</div>
+        <div class="legal-line">© 2026 ApexMaterials. All rights reserved.</div>
+        <div class="legal-line">RFQ currently routes through email intake pending dedicated backend integration.</div>
+      </div>
+      <div class="footer-links">
+        <a href="#hero">Home</a>
+        <a href="#scsp">SCSP</a>
+        <a href="#proof">Verification</a>
+        <a href="#materials">Materials</a>
+        <a href="#compliance">Quality</a>
+        <a href="#rfq">RFQ</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="mailto:info@apexmaterials.com">info@apexmaterials.com</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      const nav=document.querySelector('.nav');
+      const toggle=document.querySelector('.rfq-toggle');
+      const indicator=document.querySelector('.rfq-toggle-indicator');
+      const toggleButtons=document.querySelectorAll('.rfq-toggle-btn');
+      const panels=document.querySelectorAll('.rfq-mode-panel');
+      const stage=document.querySelector('.rfq-stage');
+      const revealItems=document.querySelectorAll('.reveal:not(.reveal-visible)');
+      const prefersReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function updateIndicator(activeButton){
+        if(!indicator||!toggle||!activeButton)return;
+        const toggleRect=toggle.getBoundingClientRect();
+        const btnRect=activeButton.getBoundingClientRect();
+        const x=btnRect.left-toggleRect.left;
+        indicator.style.width=btnRect.width+'px';
+        indicator.style.transform=`translateX(${x}px)`;
+      }
+      function syncStageHeight(mode){
+        if(stage) stage.style.minHeight='auto';
+      }
+      function activateMode(mode){
+        let activeButton=null;
+        toggleButtons.forEach((btn)=>{const active=btn.dataset.mode===mode;btn.classList.toggle('active',active);btn.setAttribute('aria-selected',active?'true':'false');if(active)activeButton=btn;});
+        panels.forEach((panel)=>{const active=panel.dataset.panel===mode;panel.classList.toggle('active',active);panel.hidden=!active;panel.style.display=active?'grid':'none';});
+        requestAnimationFrame(()=>{updateIndicator(activeButton);syncStageHeight(mode);});
+      }
+      toggleButtons.forEach((btn)=>btn.addEventListener('click',()=>activateMode(btn.dataset.mode)));
+
+
+    function buildMailtoHref(form){
+      const fd = new FormData(form);
+      const subject = fd.get('_subject') || 'ApexMaterials RFQ';
+      const lines = [];
+      for(const [key,value] of fd.entries()){
+        if(!value || String(value).trim()==='' || String(key).startsWith('_')) continue;
+        lines.push(`${key}: ${value}`);
+      }
+      const body = lines.join('\n');
+      return `mailto:info@apexmaterials.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+
+      function wireForm(formId){
+        const form=document.getElementById(formId);
+        if(!form)return;
+        const success=form.querySelector('.form-success');
+        const submitBtn=form.querySelector('.rfq-submit-btn');
+
+        form.addEventListener('submit', async function(e){
+          e.preventDefault();
+          if(window.ApexEnterpriseFormUI && !window.ApexEnterpriseFormUI.validateEnhancedSelects(form)){ return; }
+          if(!form.checkValidity()){ form.reportValidity(); return; }
+
+          const action=form.getAttribute('action') || '';
+          if(!action || action.startsWith('mailto:')){
+            window.location.href = buildMailtoHref(form);
+            success.textContent='Email draft opened. Review and send your RFQ to complete submission.';
+            success.classList.add('visible');
+            return;
+          }
+
+          try{
+            form.classList.add('is-submitting');
+        setFlowState(form, 'submitting');
+            if(submitBtn) submitBtn.textContent='Submitting...';
+
+            const response = await fetch(action, {
+              method:'POST',
+              headers:{'Accept':'application/json'},
+              body:new FormData(form)
+            });
+
+            if(!response.ok){
+              throw new Error('Submission failed');
+            }
+
+            success.classList.add('visible');
+            form.reset();
+            if(window.ApexEnterpriseFormUI){ setTimeout(()=>window.ApexEnterpriseFormUI.syncFormSelects(form),0); }
+          }catch(err){
+            success.textContent='Submission could not be completed. Please try again or contact info@apexmaterials.com.';
+            success.classList.add('visible');
+          }finally{
+            form.classList.remove('is-submitting');
+            if(submitBtn){
+              submitBtn.textContent = formId === 'specRequestForm'
+                ? 'Submit for Specification Review'
+                : 'Request Commercial Follow-Up';
+            }
+          }
+        });
+      }
+      function handleNavState(){ if(nav) nav.classList.toggle('scrolled',window.scrollY>12); }
+      function initReveal(){
+        if(prefersReducedMotion){ revealItems.forEach((item)=>item.classList.add('reveal-visible')); return; }
+        const observer=new IntersectionObserver((entries)=>{entries.forEach((entry)=>{if(entry.isIntersecting){entry.target.classList.add('reveal-visible');observer.unobserve(entry.target);}});},{threshold:0.12,rootMargin:'0px 0px -8% 0px'});
+        revealItems.forEach((item)=>observer.observe(item));
+      }
+      function initMaterialToggles(){
+        document.querySelectorAll('.material-card').forEach((card)=>{
+          const buttons=card.querySelectorAll('.toggle-btn');
+          const panels=card.querySelectorAll('.dual-panel');
+          const localStage=card.querySelector('.panel-stage');
+          function setHeight(){
+            if(!localStage||window.innerWidth<=1160){ if(localStage) localStage.style.minHeight='auto'; return; }
+            const active=card.querySelector('.dual-panel.active');
+            if(active) localStage.style.minHeight=active.offsetHeight+'px';
+          }
+          buttons.forEach((button)=>{
+            button.addEventListener('click',()=>{
+              buttons.forEach((btn)=>btn.classList.remove('active'));
+              panels.forEach((panel)=>panel.classList.remove('active'));
+              button.classList.add('active');
+              const target=card.querySelector('#'+button.dataset.target);
+              if(target) target.classList.add('active');
+              requestAnimationFrame(setHeight);
+            });
+          });
+          setHeight();
+          window.addEventListener('resize',setHeight);
+        });
+      }
+
+      wireForm('specRequestForm'); wireForm('simpleRfqForm');
+      activateMode('spec'); handleNavState(); initReveal(); initMaterialToggles();
+      window.addEventListener('scroll',handleNavState,{passive:true});
+      window.addEventListener('load',()=>{const activeButton=document.querySelector('.rfq-toggle-btn.active');const activeMode=activeButton?activeButton.dataset.mode:'spec';updateIndicator(activeButton);syncStageHeight(activeMode);});
+      window.addEventListener('resize',()=>{const activeButton=document.querySelector('.rfq-toggle-btn.active');const activeMode=activeButton?activeButton.dataset.mode:'spec';updateIndicator(activeButton);syncStageHeight(activeMode);});
+    })();
+  </script>
+
+<div class="decision-dock" id="decisionDock" aria-label="Decision state">
+  <div class="decision-dock-inner">
+    <div class="decision-meta">
+      <div class="decision-label">System Status</div>
+      <div class="decision-state" id="decisionState">SYSTEM INITIALIZED</div>
+    </div>
+    <a class="decision-cta" id="decisionCTA" href="#rfq">Start Controlled RFQ</a>
+  </div>
+</div>
+
+  <script>
+    (function () {
+      const header = document.getElementById('siteHeader');
+      const decisionState = document.getElementById('decisionState');
+      const decisionCTA = document.getElementById('decisionCTA');
+      const navLinks = Array.from(document.querySelectorAll('.nav-links a[data-nav]'));
+
+      const sectionConfig = [
+        { id: 'scsp', state: 'SYSTEM STANDARD REVIEWED', ctaText: 'Review Proof Layer', ctaHref: '#proof' },
+        { id: 'proof', state: 'VERIFICATION REVIEWED', ctaText: 'Review Materials', ctaHref: '#materials' },
+        { id: 'materials', state: 'MATERIAL FIT CONFIRMED', ctaText: 'Review Markets', ctaHref: '#markets' },
+        { id: 'markets', state: 'MARKET ALIGNMENT CONFIRMED', ctaText: 'Start Controlled RFQ', ctaHref: '#rfq' },
+        { id: 'rfq', state: 'RFQ READY', ctaText: 'Start Controlled RFQ', ctaHref: '#rfq' }
+      ];
+
+      const mappedSections = sectionConfig
+        .map(item => {
+          const section = document.getElementById(item.id);
+          const link = document.querySelector('.nav-links a[href="#' + item.id + '"]');
+          if (!section || !link) return null;
+          return { ...item, section, link };
+        })
+        .filter(Boolean);
+
+      function syncHeaderScrolledState() {
+        if (!header) return;
+        if (window.scrollY > 8) {
+          header.classList.add('is-scrolled');
+        } else {
+          header.classList.remove('is-scrolled');
+        }
+      }
+
+      function getCurrentSection() {
+        if (!mappedSections.length) return null;
+        let current = mappedSections[0];
+        for (const item of mappedSections) {
+          const rect = item.section.getBoundingClientRect();
+          if (rect.top <= window.innerHeight * 0.24) {
+            current = item;
+          }
+        }
+        return current;
+      }
+
+      function syncActiveStates() {
+        const current = getCurrentSection();
+        if (!current) return;
+
+        navLinks.forEach(link => link.classList.remove('is-active'));
+        current.link.classList.add('is-active');
+
+        if (decisionState) decisionState.textContent = current.state;
+        if (decisionCTA) {
+          decisionCTA.textContent = current.ctaText;
+          decisionCTA.setAttribute('href', current.ctaHref);
+        }
+      }
+
+      function syncAll() {
+        syncHeaderScrolledState();
+        syncActiveStates();
+      }
+
+      window.addEventListener('scroll', syncAll, { passive: true });
+      window.addEventListener('resize', syncAll);
+      window.addEventListener('load', syncAll);
+
+      const rfqAnchorLinks = document.querySelectorAll('a[href="#rfq"]');
+      rfqAnchorLinks.forEach((link)=>{
+        link.addEventListener('click', (e)=>{
+          const rfqSection = document.getElementById('rfq');
+          if(!rfqSection) return;
+          e.preventDefault();
+          rfqSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          const specTab = document.getElementById('tab-spec');
+          if(specTab) specTab.click();
+          rfqSection.classList.add('rfq-engaged');
+          const specCard = rfqSection.querySelector('#panel-spec .rfq-form-card');
+          if(specCard) specCard.classList.add('is-guided');
+          window.clearTimeout(window.__apexRfqGlowOff);
+          window.__apexRfqGlowOff = window.setTimeout(()=>{
+            rfqSection.classList.remove('rfq-engaged');
+            if(specCard) specCard.classList.remove('is-guided');
+          }, 1600);
+          window.setTimeout(()=>{
+            const firstField = document.querySelector('#specRequestForm .ui-select-trigger, #specRequestForm input:not([type="hidden"]), #specRequestForm textarea');
+            if(firstField) firstField.focus({ preventScroll:true });
+          }, 240);
+          history.replaceState(null, '', '#rfq');
+        });
+      });
+
+      syncAll();
+    })();
+  </script>
+
+
+<script id="enterprise-form-script">
+(function(){
+  const enhancedSelects = new WeakMap();
+
+  function closeAllSelects(except){
+    document.querySelectorAll('.ui-select.open').forEach((wrap)=>{
+      if (except && wrap === except) return;
+      wrap.classList.remove('open');
+      const trigger = wrap.querySelector('.ui-select-trigger');
+      if(trigger) trigger.setAttribute('aria-expanded','false');
+    });
+  }
+
+  function syncSelectUI(hiddenInput){
+    const entry = enhancedSelects.get(hiddenInput);
+    if(!entry) return;
+    const activeOption = entry.data.find((opt)=>opt.value === hiddenInput.value) || entry.data[0];
+    const isPlaceholder = !hiddenInput.value;
+    entry.value.textContent = activeOption ? activeOption.text : '';
+    entry.trigger.classList.toggle('is-placeholder', isPlaceholder);
+    entry.wrap.classList.toggle('is-invalid', entry.required && !hiddenInput.value);
+    entry.options.forEach((optionEl)=>{
+      const selected = optionEl.dataset.value === hiddenInput.value;
+      optionEl.classList.toggle('is-selected', selected);
+      optionEl.setAttribute('aria-selected', selected ? 'true' : 'false');
+    });
+  }
+
+  function commitValue(hiddenInput, value){
+    hiddenInput.value = value;
+    hiddenInput.dispatchEvent(new Event('change', { bubbles:true }));
+    syncSelectUI(hiddenInput);
+  }
+
+  function enhanceSelect(select){
+    if (!select || select.dataset.enhanced === 'true') return;
+    select.dataset.enhanced = 'true';
+
+    const optionData = Array.from(select.options).map((opt, index)=>({
+      value: opt.value,
+      text: opt.textContent,
+      index,
+      placeholder: !opt.value
+    }));
+
+    const wrap = document.createElement('div');
+    wrap.className = 'ui-select';
+
+    const trigger = document.createElement('div');
+    trigger.className = 'ui-select-trigger';
+    trigger.setAttribute('role', 'button');
+    trigger.setAttribute('tabindex', '0');
+    trigger.setAttribute('aria-haspopup', 'listbox');
+    trigger.setAttribute('aria-expanded', 'false');
+
+    const value = document.createElement('span');
+    value.className = 'ui-select-value';
+    trigger.appendChild(value);
+
+    const arrow = document.createElement('span');
+    arrow.className = 'ui-select-arrow';
+    trigger.appendChild(arrow);
+
+    const panel = document.createElement('div');
+    panel.className = 'ui-select-panel';
+    panel.setAttribute('role','listbox');
+
+    const hiddenInput = document.createElement('input');
+    hiddenInput.type = 'hidden';
+    hiddenInput.name = select.name;
+    hiddenInput.value = select.value;
+    hiddenInput.dataset.required = select.required ? 'true' : 'false';
+
+    const optionEls = [];
+    optionData.forEach((opt)=>{
+      const optionEl = document.createElement('div');
+      optionEl.className = 'ui-select-option';
+      optionEl.textContent = opt.text;
+      optionEl.dataset.value = opt.value;
+      optionEl.dataset.index = String(opt.index);
+      optionEl.setAttribute('role','option');
+      optionEl.setAttribute('tabindex','-1');
+      optionEl.setAttribute('aria-selected','false');
+      if(opt.placeholder){
+        optionEl.classList.add('is-placeholder-option');
+      }
+      optionEl.addEventListener('mousedown', (event)=> event.preventDefault());
+      optionEl.addEventListener('click', ()=>{
+        commitValue(hiddenInput, opt.value);
+        wrap.classList.remove('open');
+        trigger.setAttribute('aria-expanded','false');
+        trigger.focus();
+      });
+      panel.appendChild(optionEl);
+      optionEls.push(optionEl);
+    });
+
+    select.classList.add('ui-native-select');
+    select.removeAttribute('name');
+    select.required = false;
+    select.setAttribute('aria-hidden', 'true');
+    select.setAttribute('tabindex', '-1');
+
+    select.parentNode.insertBefore(wrap, select);
+    wrap.appendChild(trigger);
+    wrap.appendChild(panel);
+    wrap.appendChild(hiddenInput);
+    wrap.appendChild(select);
+
+    const entry = { wrap, trigger, value, panel, options: optionEls, data: optionData, required: hiddenInput.dataset.required === 'true' };
+    enhancedSelects.set(hiddenInput, entry);
+
+    const toggleOpen = (force)=>{
+      const willOpen = typeof force === 'boolean' ? force : !wrap.classList.contains('open');
+      closeAllSelects(wrap);
+      wrap.classList.toggle('open', willOpen);
+      trigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    };
+
+    trigger.addEventListener('mousedown', (event)=> event.preventDefault());
+    trigger.addEventListener('click', ()=> toggleOpen());
+    trigger.addEventListener('keydown', (event)=>{
+      if(event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' '){
+        event.preventDefault();
+        toggleOpen(true);
+      }
+      if(event.key === 'Escape'){
+        toggleOpen(false);
+      }
+    });
+
+    hiddenInput.addEventListener('change', ()=> syncSelectUI(hiddenInput));
+    syncSelectUI(hiddenInput);
+  }
+
+  document.addEventListener('click', (event)=>{
+    const inside = event.target.closest('.ui-select');
+    if(!inside) closeAllSelects();
+  });
+
+  document.addEventListener('keydown', (event)=>{
+    if(event.key === 'Escape') closeAllSelects();
+  });
+
+  function validateEnhancedSelects(form){
+    let valid = true;
+    Array.from(form.querySelectorAll('.ui-select input[type="hidden"]')).forEach((hiddenInput)=>{
+      syncSelectUI(hiddenInput);
+      const entry = enhancedSelects.get(hiddenInput);
+      if(entry && entry.required && !hiddenInput.value){
+        valid = false;
+      }
+    });
+    return valid;
+  }
+
+  function syncFormSelects(form){
+    form.querySelectorAll('.ui-select input[type="hidden"]').forEach((hiddenInput)=>{
+      const select = hiddenInput.parentElement.querySelector('select.ui-native-select');
+      if(select){
+        hiddenInput.value = select.value;
+      }
+      syncSelectUI(hiddenInput);
+    });
+  }
+
+  function setFlowState(form, state){
+    const card = form.querySelector('[data-flow-card]');
+    if(!card) return;
+    const progress = card.querySelector('[data-flow-progress]');
+    const label = card.querySelector('[data-flow-label]');
+    const feedback = card.querySelector('[data-flow-feedback]');
+    const chipText = card.querySelector('[data-flow-chip-text]');
+    const timing = card.querySelector('[data-flow-timing]');
+    const steps = Array.from(card.querySelectorAll('[data-flow-step]'));
+    card.dataset.state = state;
+    steps.forEach((step, index)=>{
+      step.classList.remove('is-active','is-complete','is-muted');
+      const stepNumber = index + 1;
+      if(state === 'idle'){
+        step.classList.add(stepNumber === 1 ? 'is-active' : 'is-muted');
+      }else if(state === 'submitting'){
+        step.classList.add(stepNumber === 1 ? 'is-active' : 'is-muted');
+      }else if(state === 'submitted'){
+        step.classList.add('is-complete');
+      }
+    });
+    if(state === 'idle'){
+      if(progress) progress.style.width = '34%';
+      if(label) label.textContent = 'Ready for review';
+      if(chipText) chipText.textContent = 'Ready for submission';
+      if(timing) timing.textContent = 'Typical first response: 1–3 business days';
+      if(feedback) feedback.innerHTML = '<strong>Current state:</strong> your request is ready to enter specification review. Submission triggers structured intake before quotation is issued. Review workflow is structured to reduce iteration cycles and accelerate procurement readiness.';
+    }else if(state === 'submitting'){
+      if(progress) progress.style.width = '52%';
+      if(label) label.textContent = 'Specification intake in progress';
+      if(chipText) chipText.textContent = 'Submitting to review';
+      if(timing) timing.textContent = 'Transmission in progress';
+      if(feedback) feedback.innerHTML = '<strong>Current state:</strong> system is handing your request into structured intake. Next step is variable resolution only if clarity is missing.';
+    }else if(state === 'submitted'){
+      if(progress) progress.style.width = '100%';
+      if(label) label.textContent = 'Request accepted into review path';
+      if(chipText) chipText.textContent = 'Submitted to specification review';
+      if(timing) timing.textContent = 'Typical first response confirmed: 24–48h';
+      if(feedback) feedback.innerHTML = '<strong>Current state:</strong> request accepted. Technical review is now queued, and clarification will be requested only if requirement variables are incomplete.';
+    }
+  }
+
+  function initForms(root){
+    if(!root) return;
+    root.querySelectorAll('.rfq-form select').forEach(enhanceSelect);
+
+    root.querySelectorAll('.rfq-form').forEach((form)=>{
+      if(form.dataset.bound === 'true') return;
+      form.dataset.bound = 'true';
+      const success = form.querySelector('.form-success');
+      setFlowState(form, 'idle');
+
+      form.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        form.classList.remove('was-validated');
+        const nativeValid = form.checkValidity();
+        const selectValid = validateEnhancedSelects(form);
+        if(!nativeValid || !selectValid){
+          form.reportValidity();
+          const firstInvalid = form.querySelector('.ui-select.is-invalid .ui-select-trigger');
+          if(firstInvalid) firstInvalid.focus();
+          return;
+        }
+        form.classList.add('is-submitting');
+        setFlowState(form, 'submitting');
+        if(success) success.classList.remove('visible');
+        try{
+          if(!form.action || form.action.startsWith('mailto:')){
+            window.location.href = buildMailtoHref(form);
+            form.reset();
+            syncFormSelects(form);
+            if(success) success.classList.add('visible');
+            setFlowState(form, 'submitted');
+            return;
+          }
+          const response = await fetch(form.action, {
+            method:'POST',
+            body:new FormData(form),
+            headers:{ 'Accept':'application/json' }
+          });
+          if(!response.ok) throw new Error('submit_failed');
+          form.reset();
+          syncFormSelects(form);
+          if(success) success.classList.add('visible');
+          setFlowState(form, 'submitted');
+        }catch(err){
+          setFlowState(form, 'idle');
+          alert('Submission failed. Please try again or email info@apexmaterials.com.');
+        }finally{
+          form.classList.remove('is-submitting');
+        }
+      });
+
+      form.addEventListener('reset', ()=>{
+        window.requestAnimationFrame(()=> { syncFormSelects(form); setFlowState(form, 'idle'); });
+      });
+    });
+  }
+
+  initForms(document);
+})();
+</script>
+
+</body>
+</html>
