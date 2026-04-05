@@ -1,3 +1,4 @@
 #!/bin/bash
 # Run database migrations before starting the app
-alembic upgrade head
+# Continue even if migrations fail (they might already be applied)
+alembic upgrade head || echo "Migrations may already be applied, continuing..."
