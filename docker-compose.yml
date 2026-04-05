@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: apexmaterials-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: apexmaterials
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - apexmaterials_pgdata:/var/lib/postgresql/data
+
+volumes:
+  apexmaterials_pgdata:
